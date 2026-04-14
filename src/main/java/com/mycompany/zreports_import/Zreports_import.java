@@ -31,11 +31,24 @@ public class Zreports_import {
     private final operations ope;
    
 
+    /**
+     * 0, what to do, 'import' or 'id'
+     * 2, filename
+     * 1, concession, '01' or '03'
+     * @param args 
+     */
     public static void main(String[] args) {
         System.out.println("Hello World!");
         
         Zreports_import zi = new Zreports_import();
-        zi.go(args[0], args[1]);
+        
+        switch(args[0]){
+            
+            case "import" -> zi.do_import(args[2], args[1]);
+            case "id" -> zi.create_id_zreport(args[1]);
+            default -> System.out.println("'import' or 'id'");
+            
+        }
         
     }
 
@@ -54,12 +67,16 @@ public class Zreports_import {
         
     }
     
+    private void create_id_zreport(String concession){
+        
+    }
+    
     /**
      * 
      * @param filename
      * @param concession 
      */
-    private void go(String filename, String concession){
+    private void do_import(String filename, String concession){
         
         switch(concession){
             
@@ -329,15 +346,56 @@ public class Zreports_import {
     
     private boolean insert_into_database(String concession){
      
+        String sql;
         operations ope = new operations("ticketingdb.neaodos.local", "zreports", "zreports", "Ab1234!!Ab1234!!");
         
-        String sql = "INSERT INTO ";
+        if(!ope.initialize_database_connection_mariaDb()){
+
+            System.out.println("I have failed to connect to the zreport database, be seeing you...");
+            System.exit(2);
+
+        }
+        
+        if(concession.equalsIgnoreCase("03")){
+            
+            sql = "DELETE FROM zreports_ko";
+            
+        }else{
+            
+            sql = "DELETE FROM zreports_no";
+            
+        }
+        
+        if(!ope.initialize_prepared_statement(sql)){
+
+            System.out.println("I have failed to initialize the statement, be seeing you...");
+            ope.close_connection();
+            System.exit(2);
+
+        }
+        
+        if(!ope.execute_p_statement_update(false)){
+            
+            System.out.println("I have failed to delete existing records, be seeing you...");
+            ope.close_connection();
+            System.exit(2);
+            
+        }
+
+        
+        if(!ope.initialize_database_connection_mariaDb()){
+
+            System.out.println("I have failed to connect to the zreport database, be seeing you...");
+            System.exit(2);
+
+        }
+        
+        sql = "INSERT INTO ";
         
         if(concession.equalsIgnoreCase("03")){
             
             sql = sql + "zreports_ko ";
         
-    
         }else{
             
             sql = sql + "zreports_no ";
@@ -347,12 +405,7 @@ public class Zreports_import {
         sql = sql + "(yearmonth, date1, id_plaza, id_lane, gross, count1_1, net1_1, count2_1, net2_1, count3_1, net3_1, count4_1, net4_1, count1_2, count2_2, count3_2, count4_2, id_network, vat_rate, total_net, total_vat, description_full_gr, id_zreport) "
                 + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         
-        if(!ope.initialize_database_connection_mariaDb()){
 
-            System.out.println("I have failed to connect to the zreport database, be seeing you...");
-            System.exit(2);
-
-        }
         
         if(!ope.initialize_prepared_statement(sql)){
 
