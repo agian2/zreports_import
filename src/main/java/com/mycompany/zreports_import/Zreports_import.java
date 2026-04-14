@@ -92,7 +92,8 @@ public class Zreports_import {
         }
             
 
-        insert_records();
+        printout_records();
+        insert_into_database(concession);
 
         
     }
@@ -102,6 +103,12 @@ public class Zreports_import {
      * @param line 
      */
     private boolean parse_line(String line, String concession){
+        
+        if(line.startsWith("DATE1;ID_PLAZA;ID_LANE;GROSS;COUNT1_1;NET1_1;COUNT2_1")){
+           
+            return false;
+            
+        }
         
         System.out.println("-> " + line);
         
@@ -203,7 +210,7 @@ public class Zreports_import {
         
     }
     
-    private void insert_records(){
+    private void printout_records(){
         
         for(Zreport_record zr : zreport_records){
             
@@ -318,6 +325,78 @@ public class Zreports_import {
        
         return null;
         
+    }
+    
+    private boolean insert_into_database(String concession){
+     
+        operations ope = new operations("ticketingdb.neaodos.local", "zreports", "zreports", "Ab1234!!Ab1234!!");
+        
+        String sql = "INSERT INTO ";
+        
+        if(concession.equalsIgnoreCase("03")){
+            
+            sql = sql + "zreports_ko ";
+        
+    
+        }else{
+            
+            sql = sql + "zreports_no ";
+            
+        }
+        
+        sql = sql + "(yearmonth, date1, id_plaza, id_lane, gross, count1_1, net1_1, count2_1, net2_1, count3_1, net3_1, count4_1, net4_1, count1_2, count2_2, count3_2, count4_2, id_network, vat_rate, total_net, total_vat, description_full_gr, id_zreport) "
+                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        
+        if(!ope.initialize_database_connection_mariaDb()){
+
+            System.out.println("I have failed to connect to the zreport database, be seeing you...");
+            System.exit(2);
+
+        }
+        
+        if(!ope.initialize_prepared_statement(sql)){
+
+            System.out.println("I have failed to initialize the statement, be seeing you...");
+            ope.close_connection();
+            System.exit(2);
+
+        }
+        
+        for(Zreport_record zr: zreport_records){
+            
+            ope.p_stmt_setString(1, zr.year_month);
+            ope.p_stmt_setDate(2, java.sql.Date.valueOf(zr.date1));
+            ope.p_stmt_setString(3, zr.id_plaza);
+            ope.p_stmt_setString(4, zr.id_lane);
+            ope.p_stmt_setBigDecimal(5, zr.gross);
+            ope.p_stmt_setInt(6, zr.count1_1);
+            ope.p_stmt_setBigDecimal(7, zr.net1_1);
+            ope.p_stmt_setInt(8, zr.count2_1);
+            ope.p_stmt_setBigDecimal(9, zr.net2_1);
+            ope.p_stmt_setInt(10, zr.count3_1);
+            ope.p_stmt_setBigDecimal(11, zr.net3_1);
+            ope.p_stmt_setInt(12, zr.count4_1);
+            ope.p_stmt_setBigDecimal(13, zr.net4_1);
+            ope.p_stmt_setInt(14, zr.count1_2);
+            ope.p_stmt_setInt(15, zr.count2_2);
+            ope.p_stmt_setInt(16, zr.count3_2);
+            ope.p_stmt_setInt(17, zr.count4_2);
+            ope.p_stmt_setString(18, zr.id_network);
+            ope.p_stmt_setBigDecimal(19, zr.vat_rate);
+            ope.p_stmt_setBigDecimal(20, zr.total_net);
+            ope.p_stmt_setBigDecimal(21, zr.total_vat);
+            ope.p_stmt_setString(22, zr.description_full_gr);
+            ope.p_stmt_setInt(23, 0);
+            
+            ope.p_stmt_add_batch();
+            
+        }
+        
+        ope.execute_p_statement_batch(true);
+        
+        return true;
+        
+
     }
     
     /**
