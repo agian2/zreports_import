@@ -62,12 +62,21 @@ public class Zreports_import {
         id_plaza_no = new HashMap<>();
         description_full_gr_ko = new HashMap<>();
         description_full_gr_no = new HashMap<>();
-        vat_rate_periods = new ArrayList<Zreport_vat_rate_period>(); 
+        vat_rate_periods = new ArrayList<>(); 
         ope = new operations("monitoring.neaodos.local", "tcstrx", "mychecks", "Ab1234!!Ab1234!!");
         
     }
     
     private void create_id_zreport(String concession){
+        
+        Zreport_get_last_zids zglz = new Zreport_get_last_zids(concession);
+        
+        zglz.retrieve_last_zids();
+        
+        HashMap<String, Integer> zreport_ids = zglz.get_last_z_ids();
+        System.out.println("zreport_ids: " + zreport_ids.size());
+        
+        System.out.println("done");
         
     }
     
@@ -344,6 +353,11 @@ public class Zreports_import {
         
     }
     
+    /**
+     * 
+     * @param concession
+     * @return 
+     */
     private boolean insert_into_database(String concession){
      
         String sql;
