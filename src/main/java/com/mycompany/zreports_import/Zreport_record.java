@@ -34,10 +34,8 @@ class Zreport_record {
      int count4_2 = 0;                          // class 4 transactions without revenue
      String id_network;                         // network id
      BigDecimal vat_rate;                       // vat rate corresponding to the date
-/** the following properties are only used for pdf file creation
- *  they are not inserted into the database or the export file
- */
-     String description_full_gr;             // plaza full name in greek
+     String description_full_gr;                // plaza full name in greek
+     int id_zreport;
 
     
     // transactions with revenue: id_mop 1,7,12 cash, iou, bank card
