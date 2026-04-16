@@ -30,8 +30,8 @@ public class Zreport_get_last_zids {
         
         switch(concession){
                 
-            case "03" -> tablename = "zreports_ko";
-            case "01" -> tablename = "zreports_no";
+            case "03" -> tablename = "zreports_ko_test";
+            case "01" -> tablename = "zreports_no_test";
             default -> { System.out.println("invalid concession"); System.exit(2);}
                 
         }
@@ -80,13 +80,13 @@ public class Zreport_get_last_zids {
 
             }
             
-            if(!rs.isBeforeFirst()){
-                
-                System.out.println("query for the zreport ids returned empty resultset, be seeing you...");
-                rs.close();
-                System.exit(2);
-                
-            }
+//            if(!rs.isBeforeFirst()){
+//                
+//                System.out.println("query for the zreport ids returned empty resultset, be seeing you...");
+//                rs.close();
+//                System.exit(2);
+//                
+//            }
             
             while(rs.next()){
                 

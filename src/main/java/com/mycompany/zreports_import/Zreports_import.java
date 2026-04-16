@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -49,7 +50,7 @@ public class Zreports_import {
         switch(args[0]){
             
             case "import" -> zi.do_import(args[2], args[1]);
-            case "id" -> zi.create_id_zreport(args[1]);
+//            case "id" -> zi.create_id_zreport(args[1]);
             default -> System.out.println("'import' or 'id'");
             
         }
@@ -72,6 +73,8 @@ public class Zreports_import {
     try{
         InputStream stream = this.getClass().getClassLoader().getResourceAsStream("logging.properties");
         LogManager.getLogManager().readConfiguration(stream);
+        //ConsoleHandler logConsoleHandler = new ConsoleHandler();
+        //Logger.getGlobal().addHandler(logConsoleHandler);
         
     } catch (IOException ex) {
         
@@ -81,14 +84,14 @@ public class Zreports_import {
         
     }
     
-    /**
-     * 
-     * @param concession 
-     */
-    private void create_id_zreport(String concession){
-
-        
-    }
+//    /**
+//     * 
+//     * @param concession 
+//     */
+//    private void create_id_zreport(String concession){
+//
+//        
+//    }
     
     /**
      * 
@@ -123,9 +126,11 @@ public class Zreports_import {
             lines.forEach(line -> {
                 Zreport_record zr = parse_line_to_zreport_record(line, concession);
                 if(zr != null){
-                    
-                    insert_into_database_single(zr);
-                    System.out.println("DB OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", id_zreport: " +zr.id_zreport); 
+                        if(insert_into_database_single(zr)){
+                        
+                            System.out.println("DB OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", id_zreport: " +zr.id_zreport); 
+                     
+                        }
                     
                 }
 
@@ -260,17 +265,40 @@ public class Zreports_import {
             
         }
         
+//    // delete potential existing record before trying to retrieve the last id_zrecord
+//        if(!delete_record_from_database(zr)){
+//
+//            return null;
+//
+//        }
+        
     // id_zreport
         Zreport_get_last_zids zglz = new Zreport_get_last_zids(concession);
-        zglz.retrieve_last_zids();
+        if(zglz.retrieve_last_zids()){
         
-        HashMap<String, Integer> zreport_ids = zglz.get_last_z_ids();
+            HashMap<String, Integer> zreport_ids = zglz.get_last_z_ids();
+//            System.out.println("__________________________________________________________________");
+//            zreport_ids.forEach((k,v) -> {System.out.println(k + " -> " + v);});
+//            System.out.println("__________________________________________________________________");
+//            System.out.println(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane + ", last id_zreport: " + zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane));
+//            System.out.println("__________________________________________________________________");
         
-        System.out.println("last id_zreport: " + zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane));
+            if(zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane) == null){
+                
+                zr.id_zreport = 1;
+                
+            }else{
+            
+                zr.id_zreport = zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane) + 1;
+            
+            }
         
-        zr.id_zreport = zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane) + 1;
-        
-        return zr;
+            return zr;
+        }else{
+            
+            return null;
+            
+        }
         
     }
     
@@ -278,162 +306,170 @@ public class Zreports_import {
      * 
      * @param line 
      */
-    private boolean parse_line(String line, String concession){
-        
-        if(line.startsWith("DATE1;ID_PLAZA;ID_LANE;GROSS;COUNT1_1;NET1_1;COUNT2_1")){
-           
-            return false;
-            
-        }
-        
-        if(line.startsWith("date1,id_plaza,id_lane,gross,count1_1")){
-           
-            return false;
-            
-        }
-        
-        System.out.println("-> " + line);
-        
-        String[] l = line.split(";");
-        
-        Zreport_record zr = new Zreport_record();
-        
-        String date1 = l[0].substring(0, 10);
+//    private boolean parse_line(String line, String concession){
+//        
+//        if(line.startsWith("DATE1;ID_PLAZA;ID_LANE;GROSS;COUNT1_1;NET1_1;COUNT2_1")){
+//           
+//            return false;
+//            
+//        }
+//        
+//        if(line.startsWith("date1,id_plaza,id_lane,gross,count1_1")){
+//           
+//            return false;
+//            
+//        }
+//        
+//        System.out.println("-> " + line);
+//        
+//        String[] l = line.split(";");
+//        
+//        Zreport_record zr = new Zreport_record();
+//        
+//        String date1 = l[0].substring(0, 10);
+//    
+//    // year_month
+//        zr.year_month = date1.replace("-", "").substring(0, 6);
+//    // date 1
+//        zr.date1 = LocalDate.parse(date1);
+//    // id_network
+//        zr.id_network = concession;
+//    // id_plaza
+//        if(concession.equalsIgnoreCase("03")){
+//            
+//            if(id_plaza_ko.get(l[1].replace("\"", "")) != null){
+//
+//                zr.id_plaza = id_plaza_ko.get(l[1].replace("\"", ""));
+//
+//            }else{
+//
+//                return false;
+//
+//            }
+//            
+//        }else if(concession.equalsIgnoreCase("01")){
+//
+//            if(id_plaza_no.get(l[1].replace("\"", "")) != null){
+//
+//                zr.id_plaza = id_plaza_no.get(l[1].replace("\"", ""));
+//
+//            }else{
+//
+//                return false;
+//
+//            }            
+//            
+//        }else{
+//            
+//            return false;
+//            
+//        }
+//    // id_lane
+//        zr.id_lane = l[2];
+//    // gross
+//        zr.gross = new BigDecimal(l[3]);
+//    // count1_1
+//        zr.count1_1 = Integer.parseInt(l[4]);
+//    // net1_1
+//        zr.net1_1 = new BigDecimal(l[5]);
+//    // count2_1
+//        zr.count2_1 = Integer.parseInt(l[6]);
+//    // net2_1
+//        zr.net2_1 = new BigDecimal(l[7]);
+//    // count3_1
+//        zr.count3_1 = Integer.parseInt(l[8]);
+//    // net3_1
+//        zr.net3_1 = new BigDecimal(l[9]);
+//    // count4_1
+//        zr.count4_1 = Integer.parseInt(l[10]);
+//    // net4_1
+//        zr.net4_1 = new BigDecimal(l[11]);
+//    // count1_2
+//        zr.count1_2 = Integer.parseInt(l[12]);
+//    // count2_2
+//        zr.count2_2 = Integer.parseInt(l[13]);
+//    // count3_2
+//        zr.count3_2 = Integer.parseInt(l[14]);
+//    // count4_2
+//        zr.count4_2 = Integer.parseInt(l[15]);
+//    // total_net
+//        zr.total_net = zr.net1_1.add(zr.net2_1).add(zr.net3_1).add(zr.net4_1);
+//    // total_vat
+//        zr.total_vat = zr.gross.subtract(zr.total_net);
+//    // vat_rate
+//        zr.vat_rate = determine_vat_rate(zr.date1);
+//    // description_full_gr
+//        if(concession.equalsIgnoreCase("03")){
+//        
+//            zr.description_full_gr = description_full_gr_ko.get(l[1].replace("\"", ""));
+//            
+//        }else if(concession.equalsIgnoreCase("01")){
+//            
+//            zr.description_full_gr = description_full_gr_no.get(l[1].replace("\"", ""));
+//            
+//        }else{
+//            
+//            return false;
+//            
+//        }
+//        
+//    // id_zreport
+//        Zreport_get_last_zids zglz = new Zreport_get_last_zids(concession);
+//        zglz.retrieve_last_zids();
+//        
+//        HashMap<String, Integer> zreport_ids = zglz.get_last_z_ids();
+//        
+//        if(zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane) == null){
+//            
+//            zr.id_zreport = 1;
+//            
+//        }else{
+//        
+//            zr.id_zreport = zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane) + 1;
+//            
+//        }
+//        
+//    // add the record
+//        zreport_records.add(zr);
+//        
+//        return true;
+//        
+//    }
     
-    // year_month
-        zr.year_month = date1.replace("-", "").substring(0, 6);
-    // date 1
-        zr.date1 = LocalDate.parse(date1);
-    // id_network
-        zr.id_network = concession;
-    // id_plaza
-        if(concession.equalsIgnoreCase("03")){
-            
-            if(id_plaza_ko.get(l[1].replace("\"", "")) != null){
-
-                zr.id_plaza = id_plaza_ko.get(l[1].replace("\"", ""));
-
-            }else{
-
-                return false;
-
-            }
-            
-        }else if(concession.equalsIgnoreCase("01")){
-
-            if(id_plaza_no.get(l[1].replace("\"", "")) != null){
-
-                zr.id_plaza = id_plaza_no.get(l[1].replace("\"", ""));
-
-            }else{
-
-                return false;
-
-            }            
-            
-        }else{
-            
-            return false;
-            
-        }
-    // id_lane
-        zr.id_lane = l[2];
-    // gross
-        zr.gross = new BigDecimal(l[3]);
-    // count1_1
-        zr.count1_1 = Integer.parseInt(l[4]);
-    // net1_1
-        zr.net1_1 = new BigDecimal(l[5]);
-    // count2_1
-        zr.count2_1 = Integer.parseInt(l[6]);
-    // net2_1
-        zr.net2_1 = new BigDecimal(l[7]);
-    // count3_1
-        zr.count3_1 = Integer.parseInt(l[8]);
-    // net3_1
-        zr.net3_1 = new BigDecimal(l[9]);
-    // count4_1
-        zr.count4_1 = Integer.parseInt(l[10]);
-    // net4_1
-        zr.net4_1 = new BigDecimal(l[11]);
-    // count1_2
-        zr.count1_2 = Integer.parseInt(l[12]);
-    // count2_2
-        zr.count2_2 = Integer.parseInt(l[13]);
-    // count3_2
-        zr.count3_2 = Integer.parseInt(l[14]);
-    // count4_2
-        zr.count4_2 = Integer.parseInt(l[15]);
-    // total_net
-        zr.total_net = zr.net1_1.add(zr.net2_1).add(zr.net3_1).add(zr.net4_1);
-    // total_vat
-        zr.total_vat = zr.gross.subtract(zr.total_net);
-    // vat_rate
-        zr.vat_rate = determine_vat_rate(zr.date1);
-    // description_full_gr
-        if(concession.equalsIgnoreCase("03")){
-        
-            zr.description_full_gr = description_full_gr_ko.get(l[1].replace("\"", ""));
-            
-        }else if(concession.equalsIgnoreCase("01")){
-            
-            zr.description_full_gr = description_full_gr_no.get(l[1].replace("\"", ""));
-            
-        }else{
-            
-            return false;
-            
-        }
-        
-    // id_zreport
-        Zreport_get_last_zids zglz = new Zreport_get_last_zids(concession);
-        zglz.retrieve_last_zids();
-        
-        HashMap<String, Integer> zreport_ids = zglz.get_last_z_ids();
-        
-        zr.id_zreport = zreport_ids.get(zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane) + 1;
-        
-    // add the record
-        zreport_records.add(zr);
-        
-        return true;
-        
-    }
-    
-    private void printout_records(){
-        
-        for(Zreport_record zr : zreport_records){
-            
-            System.out.print(zr.year_month + ";");
-            System.out.print(zr.date1.toString() + ";");
-            System.out.print(zr.id_network + ";");
-            System.out.print(zr.id_plaza + ";");
-            System.out.print(zr.id_lane + ";");
-            System.out.print(zr.gross + ";");
-            System.out.print(zr.count1_1 + ";");
-            System.out.print(zr.net1_1 + ";");
-            System.out.print(zr.count2_1 + ";");
-            System.out.print(zr.net2_1 + ";");
-            System.out.print(zr.count3_1 + ";");
-            System.out.print(zr.net3_1 + ";");
-            System.out.print(zr.count4_1 + ";");
-            System.out.print(zr.net4_1 + ";");
-            System.out.print(zr.count1_2 + ";");
-            System.out.print(zr.count2_2 + ";");
-            System.out.print(zr.count3_2 + ";");
-            System.out.print(zr.count4_2 + ";");
-            System.out.print(zr.total_net + ";");
-            System.out.print(zr.total_vat + ";");
-            System.out.print(zr.vat_rate + ";");
-            System.out.print(zr.description_full_gr + ";");
-            System.out.print(zr.id_zreport);
-            
-            System.out.println();
-            
-        }
-        
-    }
-    
+//    private void printout_records(){
+//        
+//        for(Zreport_record zr : zreport_records){
+//            
+//            System.out.print(zr.year_month + ";");
+//            System.out.print(zr.date1.toString() + ";");
+//            System.out.print(zr.id_network + ";");
+//            System.out.print(zr.id_plaza + ";");
+//            System.out.print(zr.id_lane + ";");
+//            System.out.print(zr.gross + ";");
+//            System.out.print(zr.count1_1 + ";");
+//            System.out.print(zr.net1_1 + ";");
+//            System.out.print(zr.count2_1 + ";");
+//            System.out.print(zr.net2_1 + ";");
+//            System.out.print(zr.count3_1 + ";");
+//            System.out.print(zr.net3_1 + ";");
+//            System.out.print(zr.count4_1 + ";");
+//            System.out.print(zr.net4_1 + ";");
+//            System.out.print(zr.count1_2 + ";");
+//            System.out.print(zr.count2_2 + ";");
+//            System.out.print(zr.count3_2 + ";");
+//            System.out.print(zr.count4_2 + ";");
+//            System.out.print(zr.total_net + ";");
+//            System.out.print(zr.total_vat + ";");
+//            System.out.print(zr.vat_rate + ";");
+//            System.out.print(zr.description_full_gr + ";");
+//            System.out.print(zr.id_zreport);
+//            
+//            System.out.println();
+//            
+//        }
+//        
+//    }
+//    
     /**
      * 
      * @param concession
@@ -523,113 +559,113 @@ public class Zreports_import {
      * @param concession
      * @return 
      */
-    private boolean insert_into_database_all(String concession){
-     
-        String sql;
-        operations ope = new operations("ticketingdb.neaodos.local", "zreports", "zreports", "Ab1234!!Ab1234!!");
-        
-        if(!ope.initialize_database_connection_mariaDb()){
-
-            System.out.println("I have failed to connect to the zreport database, be seeing you...");
-            System.exit(2);
-
-        }
-        
-        if(concession.equalsIgnoreCase("03")){
-            
-            sql = "DELETE FROM zreports_ko_test";
-            
-        }else{
-            
-            sql = "DELETE FROM zreports_no_test";
-            
-        }
-        
-        if(!ope.initialize_prepared_statement(sql)){
-
-            System.out.println("I have failed to initialize the statement, be seeing you...");
-            ope.close_connection();
-            System.exit(2);
-
-        }
-        
-        if(!ope.execute_p_statement_update(false)){
-            
-            System.out.println("I have failed to delete existing records, be seeing you...");
-            ope.close_connection();
-            System.exit(2);
-            
-        }
-
-        
-        if(!ope.initialize_database_connection_mariaDb()){
-
-            System.out.println("I have failed to connect to the zreport database, be seeing you...");
-            System.exit(2);
-
-        }
-        
-        sql = "INSERT INTO ";
-        
-        if(concession.equalsIgnoreCase("03")){
-            
-            sql = sql + "zreports_ko_test ";
-        
-        }else{
-            
-            sql = sql + "zreports_no_test ";
-            
-        }
-        
-        sql = sql + "(yearmonth, date1, id_plaza, id_lane, gross, count1_1, net1_1, count2_1, net2_1, count3_1, net3_1, count4_1, net4_1, count1_2, count2_2, count3_2, count4_2, id_network, vat_rate, total_net, total_vat, description_full_gr, id_zreport) "
-                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        
-
-        
-        if(!ope.initialize_prepared_statement(sql)){
-
-            System.out.println("I have failed to initialize the statement, be seeing you...");
-            ope.close_connection();
-            System.exit(2);
-
-        }
-        
-        for(Zreport_record zr: zreport_records){
-            
-            ope.p_stmt_setString(1, zr.year_month);
-            ope.p_stmt_setDate(2, java.sql.Date.valueOf(zr.date1));
-            ope.p_stmt_setString(3, zr.id_plaza);
-            ope.p_stmt_setString(4, zr.id_lane);
-            ope.p_stmt_setBigDecimal(5, zr.gross);
-            ope.p_stmt_setInt(6, zr.count1_1);
-            ope.p_stmt_setBigDecimal(7, zr.net1_1);
-            ope.p_stmt_setInt(8, zr.count2_1);
-            ope.p_stmt_setBigDecimal(9, zr.net2_1);
-            ope.p_stmt_setInt(10, zr.count3_1);
-            ope.p_stmt_setBigDecimal(11, zr.net3_1);
-            ope.p_stmt_setInt(12, zr.count4_1);
-            ope.p_stmt_setBigDecimal(13, zr.net4_1);
-            ope.p_stmt_setInt(14, zr.count1_2);
-            ope.p_stmt_setInt(15, zr.count2_2);
-            ope.p_stmt_setInt(16, zr.count3_2);
-            ope.p_stmt_setInt(17, zr.count4_2);
-            ope.p_stmt_setString(18, zr.id_network);
-            ope.p_stmt_setBigDecimal(19, zr.vat_rate);
-            ope.p_stmt_setBigDecimal(20, zr.total_net);
-            ope.p_stmt_setBigDecimal(21, zr.total_vat);
-            ope.p_stmt_setString(22, zr.description_full_gr);
-            ope.p_stmt_setInt(23, zr.id_zreport);
-            
-            ope.p_stmt_add_batch();
-            
-        }
-        
-        ope.execute_p_statement_batch(true);
-        
-        return true;
-        
-
-    }
+//    private boolean insert_into_database_all(String concession){
+//     
+//        String sql;
+//        operations ope = new operations("ticketingdb.neaodos.local", "zreports", "zreports", "Ab1234!!Ab1234!!");
+//        
+//        if(!ope.initialize_database_connection_mariaDb()){
+//
+//            System.out.println("I have failed to connect to the zreport database, be seeing you...");
+//            System.exit(2);
+//
+//        }
+//        
+//        if(concession.equalsIgnoreCase("03")){
+//            
+//            sql = "DELETE FROM zreports_ko_test";
+//            
+//        }else{
+//            
+//            sql = "DELETE FROM zreports_no_test";
+//            
+//        }
+//        
+//        if(!ope.initialize_prepared_statement(sql)){
+//
+//            System.out.println("I have failed to initialize the statement, be seeing you...");
+//            ope.close_connection();
+//            System.exit(2);
+//
+//        }
+//        
+//        if(!ope.execute_p_statement_update(false)){
+//            
+//            System.out.println("I have failed to delete existing records, be seeing you...");
+//            ope.close_connection();
+//            System.exit(2);
+//            
+//        }
+//
+//        
+//        if(!ope.initialize_database_connection_mariaDb()){
+//
+//            System.out.println("I have failed to connect to the zreport database, be seeing you...");
+//            System.exit(2);
+//
+//        }
+//        
+//        sql = "INSERT INTO ";
+//        
+//        if(concession.equalsIgnoreCase("03")){
+//            
+//            sql = sql + "zreports_ko_test ";
+//        
+//        }else{
+//            
+//            sql = sql + "zreports_no_test ";
+//            
+//        }
+//        
+//        sql = sql + "(yearmonth, date1, id_plaza, id_lane, gross, count1_1, net1_1, count2_1, net2_1, count3_1, net3_1, count4_1, net4_1, count1_2, count2_2, count3_2, count4_2, id_network, vat_rate, total_net, total_vat, description_full_gr, id_zreport) "
+//                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+//        
+//
+//        
+//        if(!ope.initialize_prepared_statement(sql)){
+//
+//            System.out.println("I have failed to initialize the statement, be seeing you...");
+//            ope.close_connection();
+//            System.exit(2);
+//
+//        }
+//        
+//        for(Zreport_record zr: zreport_records){
+//            
+//            ope.p_stmt_setString(1, zr.year_month);
+//            ope.p_stmt_setDate(2, java.sql.Date.valueOf(zr.date1));
+//            ope.p_stmt_setString(3, zr.id_plaza);
+//            ope.p_stmt_setString(4, zr.id_lane);
+//            ope.p_stmt_setBigDecimal(5, zr.gross);
+//            ope.p_stmt_setInt(6, zr.count1_1);
+//            ope.p_stmt_setBigDecimal(7, zr.net1_1);
+//            ope.p_stmt_setInt(8, zr.count2_1);
+//            ope.p_stmt_setBigDecimal(9, zr.net2_1);
+//            ope.p_stmt_setInt(10, zr.count3_1);
+//            ope.p_stmt_setBigDecimal(11, zr.net3_1);
+//            ope.p_stmt_setInt(12, zr.count4_1);
+//            ope.p_stmt_setBigDecimal(13, zr.net4_1);
+//            ope.p_stmt_setInt(14, zr.count1_2);
+//            ope.p_stmt_setInt(15, zr.count2_2);
+//            ope.p_stmt_setInt(16, zr.count3_2);
+//            ope.p_stmt_setInt(17, zr.count4_2);
+//            ope.p_stmt_setString(18, zr.id_network);
+//            ope.p_stmt_setBigDecimal(19, zr.vat_rate);
+//            ope.p_stmt_setBigDecimal(20, zr.total_net);
+//            ope.p_stmt_setBigDecimal(21, zr.total_vat);
+//            ope.p_stmt_setString(22, zr.description_full_gr);
+//            ope.p_stmt_setInt(23, zr.id_zreport);
+//            
+//            ope.p_stmt_add_batch();
+//            
+//        }
+//        
+//        ope.execute_p_statement_batch(true);
+//        
+//        return true;
+//        
+//
+//    }
     
     /**
      * 
@@ -653,47 +689,6 @@ public class Zreports_import {
         
         String sql;
         operations ope = new operations("ticketingdb.neaodos.local", "zreports", "zreports", "Ab1234!!Ab1234!!");
-        
-        if(!ope.initialize_database_connection_mariaDb()){
-
-            System.out.println("I have failed to connect to the zreport database, be seeing you...");
-            System.exit(2);
-
-        }
-        
-        if(zr.id_network.equalsIgnoreCase("03")){
-            
-            sql = "DELETE FROM zreports_ko_test";
-            
-        }else{
-            
-            sql = "DELETE FROM zreports_no_test";
-            
-        }
-        
-        sql = sql + " WHERE date1 = ? AND id_network = ? AND id_plaza = ? AND id_lane = ?";
-        
-        if(!ope.initialize_prepared_statement(sql)){
-
-            System.out.println("I have failed to initialize the statement, be seeing you...");
-            ope.close_connection();
-            System.exit(2);
-
-        }
-        
-        ope.p_stmt_setDate(1, java.sql.Date.valueOf(zr.date1));
-        ope.p_stmt_setString(2, zr.id_network);
-        ope.p_stmt_setString(3, zr.id_plaza);
-        ope.p_stmt_setString(4, zr.id_lane);
-        
-        if(!ope.execute_p_statement_update(false)){
-            
-            System.out.println("I have failed to delete existing records, be seeing you...");
-            ope.close_connection();
-            System.exit(2);
-            
-        }
-
         
         if(!ope.initialize_database_connection_mariaDb()){
 
@@ -756,10 +751,62 @@ public class Zreports_import {
         ope.execute_p_statement_update(false);
         
         return true;
-        
-
-        
-        
+ 
     }
+    
+    /**
+     * 
+     * @param zr
+     * @return 
+     */
+//    private boolean delete_record_from_database(Zreport_record zr){
+//        
+//        String sql;
+//        operations ope = new operations("ticketingdb.neaodos.local", "zreports", "zreports", "Ab1234!!Ab1234!!");
+//        
+//        if(!ope.initialize_database_connection_mariaDb()){
+//
+//            System.out.println("I have failed to connect to the zreport database, be seeing you...");
+//            return false;
+//
+//        }
+//        
+//        if(zr.id_network.equalsIgnoreCase("03")){
+//            
+//            sql = "DELETE FROM zreports_ko_test";
+//            
+//        }else{
+//            
+//            sql = "DELETE FROM zreports_no_test";
+//            
+//        }
+//        
+//        sql = sql + " WHERE id_network = ? AND id_plaza = ? AND id_lane = ?";
+//        
+//        if(!ope.initialize_prepared_statement(sql)){
+//
+//            System.out.println("I have failed to initialize the statement, be seeing you...");
+//            ope.close_connection();
+//            return false;
+//
+//        }
+//        
+//        ope.p_stmt_setString(1, zr.id_network);
+//        ope.p_stmt_setString(2, zr.id_plaza);
+//        ope.p_stmt_setString(3, zr.id_lane);
+//        
+//        if(!ope.execute_p_statement_update(false)){
+//            
+//            System.out.println("I have failed to delete existing records, be seeing you...");
+//            ope.close_connection();
+//            System.exit(2);
+//            
+//        }
+//
+//        ope.close_connection();
+//        System.out.println("deleted " + zr.id_network + ";" + zr.id_plaza + ";" + zr.id_lane + " (maybe)");
+//        return true;
+//        
+//    }
     
 }
