@@ -128,7 +128,7 @@ public class Zreports_import {
                 if(zr != null){
                         if(insert_into_database_single(zr)){
                         
-                            System.out.println("DB OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", id_zreport: " +zr.id_zreport); 
+                            System.out.println("DB OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", description_full_gr: " + zr.description_full_gr  + ", id_zreport: " + zr.id_zreport); 
                      
                         }
                     
@@ -749,9 +749,9 @@ public class Zreports_import {
         ope.p_stmt_setInt(23, zr.id_zreport);
             
         
-        ope.execute_p_statement_update(false);
+        return ope.execute_p_statement_update(false);
         
-        return true;
+        //return true;
  
     }
     
