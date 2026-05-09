@@ -28,8 +28,8 @@ import java.util.logging.Logger;
 public class Zreports_import {
     
     private final ArrayList<Zreport_record> zreport_records;
-    private final HashMap<String, String> id_plaza_ko;
-    private final HashMap<String, String> id_plaza_no;
+//    private final HashMap<String, String> id_plaza_ko;
+//    private final HashMap<String, String> id_plaza_no;
     private final HashMap<String, String> description_full_gr_ko;
     private final HashMap<String, String> description_full_gr_no;
     private ArrayList<Zreport_vat_rate_period> vat_rate_periods;
@@ -63,8 +63,8 @@ public class Zreports_import {
     Zreports_import(){
         
         zreport_records = new ArrayList<>();
-        id_plaza_ko = new HashMap<>();
-        id_plaza_no = new HashMap<>();
+//        id_plaza_ko = new HashMap<>();
+//        id_plaza_no = new HashMap<>();
         description_full_gr_ko = new HashMap<>();
         description_full_gr_no = new HashMap<>();
         vat_rate_periods = new ArrayList<>(); 
@@ -187,35 +187,36 @@ public class Zreports_import {
     // id_network
         zr.id_network = concession;
     // id_plaza
-        if(concession.equalsIgnoreCase("03")){
-            
-            if(id_plaza_ko.get(l[1].replace("\"", "")) != null){
-
-                zr.id_plaza = id_plaza_ko.get(l[1].replace("\"", ""));
-
-            }else{
-
-                return null;
-
-            }
-            
-        }else if(concession.equalsIgnoreCase("01")){
-
-            if(id_plaza_no.get(l[1].replace("\"", "")) != null){
-
-                zr.id_plaza = id_plaza_no.get(l[1].replace("\"", ""));
-
-            }else{
-
-                return null;
-
-            }            
-            
-        }else{
-            
-            return null;
-            
-        }
+//        if(concession.equalsIgnoreCase("03")){
+//            
+//            if(id_plaza_ko.get(l[1].replace("\"", "")) != null){
+//
+//                zr.id_plaza = id_plaza_ko.get(l[1].replace("\"", ""));
+//
+//            }else{
+//
+//                return null;
+//
+//            }
+//            
+//        }else if(concession.equalsIgnoreCase("01")){
+//
+//            if(id_plaza_no.get(l[1].replace("\"", "")) != null){
+//
+//                zr.id_plaza = id_plaza_no.get(l[1].replace("\"", ""));
+//
+//            }else{
+//
+//                return null;
+//
+//            }            
+//            
+//        }else{
+//            
+//            return null;
+//            
+//        }
+        zr.id_plaza = l[1];
     // id_lane
         zr.id_lane = l[2];
     // gross
@@ -512,12 +513,12 @@ public class Zreports_import {
             
                 if(concession.equalsIgnoreCase("03")){
                 
-                    id_plaza_ko.put(rs.getString("bos_plaza_id"), rs.getString("plaza_id"));
+//                    id_plaza_ko.put(rs.getString("bos_plaza_id"), rs.getString("plaza_id"));
                     description_full_gr_ko.put(rs.getString("bos_plaza_id"), rs.getString("description_full_gr"));
                     
                 }else if(concession.equalsIgnoreCase("01")){
                     
-                    id_plaza_no.put(rs.getString("bos_plaza_id"), rs.getString("plaza_id"));
+//                    id_plaza_no.put(rs.getString("bos_plaza_id"), rs.getString("plaza_id"));
                     description_full_gr_no.put(rs.getString("bos_plaza_id"), rs.getString("description_full_gr"));
                     
                 }
