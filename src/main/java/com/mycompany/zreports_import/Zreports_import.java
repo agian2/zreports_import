@@ -130,6 +130,10 @@ public class Zreports_import {
                         
                             System.out.println("DB OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", description_full_gr: " + zr.description_full_gr  + ", id_zreport: " + zr.id_zreport); 
                      
+                        }else{
+                            
+                            System.out.println("DB NOT OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", description_full_gr: " + zr.description_full_gr  + ", id_zreport: " + zr.id_zreport); 
+                            System.exit(1);
                         }
                     
                 }
