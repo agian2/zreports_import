@@ -128,11 +128,53 @@ public class Zreports_import {
                 if(zr != null){
                         if(insert_into_database_single(zr)){
                         
-                            System.out.println("DB OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", description_full_gr: " + zr.description_full_gr  + ", id_zreport: " + zr.id_zreport); 
+                            System.out.println("DB OK     -> date: " + zr.date1.toString()
+                                    + " id_network: " + zr.id_network 
+                                    + ", id_plaza: " + zr.id_plaza 
+                                    + ", id_lane: " + zr.id_lane 
+                                    + ", gross: " + zr.gross 
+                                    + ", count1_1: " + zr.count1_1
+                                    + ", net1_1: " + zr.net1_1
+                                    + ", count2_1: " + zr.count2_1
+                                    + ", net2_1: " + zr.net2_1
+                                    + ", count3_1: " + zr.count3_1
+                                    + ", net3_1: " + zr.net3_1
+                                    + ", count4_1: " + zr.count4_1
+                                    + ", net4_1: " + zr.net4_1
+                                    + ", count1_2: " + zr.count1_2
+                                    + ", count2_2: " + zr.count2_2
+                                    + ", count3_2: " + zr.count3_2
+                                    + ", count4_2: " + zr.count4_2
+                                    + ", total_net: " + zr.total_net
+                                    + ", total_vat: " + zr.total_vat
+                                    + ", vat_rate: " + zr.vat_rate
+                                    + ", description_full_gr: " + zr.description_full_gr  
+                                    + ", id_zreport: " + zr.id_zreport); 
                      
                         }else{
                             
-                            System.out.println("DB NOT OK -> date: " + zr.date1.toString() + " id_network: " + zr.id_network + ", id_plaza: " + zr.id_plaza + ", id_lane: " + zr.id_lane + ", description_full_gr: " + zr.description_full_gr  + ", id_zreport: " + zr.id_zreport); 
+                            System.out.println("DB NOT OK -> date: " + zr.date1.toString() 
+                                    + " id_network: " + zr.id_network 
+                                    + ", id_plaza: " + zr.id_plaza 
+                                    + ", id_lane: " + zr.id_lane 
+                                    + ", gross: " + zr.gross 
+                                    + ", count1_1: " + zr.count1_1
+                                    + ", net1_1: " + zr.net1_1
+                                    + ", count2_1: " + zr.count2_1
+                                    + ", net2_1: " + zr.net2_1
+                                    + ", count3_1: " + zr.count3_1
+                                    + ", net3_1: " + zr.net3_1
+                                    + ", count4_1: " + zr.count4_1
+                                    + ", net4_1: " + zr.net4_1
+                                    + ", count1_2: " + zr.count1_2
+                                    + ", count2_2: " + zr.count2_2
+                                    + ", count3_2: " + zr.count3_2
+                                    + ", count4_2: " + zr.count4_2
+                                    + ", total_net: " + zr.total_net
+                                    + ", total_vat: " + zr.total_vat
+                                    + ", vat_rate: " + zr.vat_rate
+                                    + ", description_full_gr: " + zr.description_full_gr  
+                                    + ", id_zreport: " + zr.id_zreport); 
                             System.exit(1);
                         }
                     
@@ -149,10 +191,6 @@ public class Zreports_import {
             System.out.println(ex.getMessage());
             
         }
-            
-
-//        printout_records();
-//        insert_into_database_all(concession);
 
     }
     
@@ -176,7 +214,7 @@ public class Zreports_import {
             
         }
         
-        System.out.println("-> " + line);
+        System.out.println("LINE IN         -> " + line);
         
         String[] l = line.split(";");
         
@@ -191,35 +229,6 @@ public class Zreports_import {
     // id_network
         zr.id_network = concession;
     // id_plaza
-//        if(concession.equalsIgnoreCase("03")){
-//            
-//            if(id_plaza_ko.get(l[1].replace("\"", "")) != null){
-//
-//                zr.id_plaza = id_plaza_ko.get(l[1].replace("\"", ""));
-//
-//            }else{
-//
-//                return null;
-//
-//            }
-//            
-//        }else if(concession.equalsIgnoreCase("01")){
-//
-//            if(id_plaza_no.get(l[1].replace("\"", "")) != null){
-//
-//                zr.id_plaza = id_plaza_no.get(l[1].replace("\"", ""));
-//
-//            }else{
-//
-//                return null;
-//
-//            }            
-//            
-//        }else{
-//            
-//            return null;
-//            
-//        }
         zr.id_plaza = l[1];
     // id_lane
         zr.id_lane = l[2];
